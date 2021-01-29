@@ -18,8 +18,6 @@ import matplotlib.pyplot as plt
 
 torch.cuda.empty_cache()
 
-from google.colab import drive
-drive.mount('/content/gdrive/')
 
 import torch
 import torch.nn as nn
@@ -95,12 +93,6 @@ def load_image2(img, size=(256,256)):
     # store
     return pixels
 
-image=load_image("/content/gdrive/MyDrive/Herdentorswallmühle,_Windmühle,_Bremen.jpg")
-
-image=torch.from_numpy(image)
-
-image=torch.unsqueeze(image,0)
-image.size()
 
 from torchvision.utils import save_image
 from IPython.display import clear_output
@@ -348,7 +340,6 @@ def predict_one_sample(model, inputs, device=DEVICE):
 from matplotlib import pyplot
 from torchvision.utils import save_image
 
-k=predict_one_sample(model,image)
 
 def workit(model,image):
     k=predict_one_sample(model,image)
@@ -359,7 +350,7 @@ def workit(model,image):
     pyplot.savefig(filename1, bbox_inches='tight')
     pyplot.close()
 
-workit(model,image)
+
 
 !pip install telegram-send
 import telegram_send
