@@ -291,9 +291,9 @@ class ResidualBlock(nn.Module):
     def forward(self, x):
         return x + self.res(x)
 
-model1=torch.load("/content/gdrive/MyDrive/g_model_BtoA_000088.h5")
+#model1=torch.load("/content/gdrive/MyDrive/g_model_BtoA_000088.h5")
 
-model=torch.load("/content/gdrive/MyDrive/g_model_AtoB_000191.h5")
+model=torch.load("g_model_AtoB_000188.h5")
 
 DEVICE = torch.device("cuda")
 device=torch.device("cuda")
@@ -322,7 +322,7 @@ def show(pic):
     fake1 = cv2.resize(fake1, dsize=(512, 512), interpolation=cv2.INTER_CUBIC)
     plt.imshow(fake1)
     #pyplot.show()
-    filename1 = '/content/gdrive/MyDrive/Outputs/pic.jpg'
+    filename1 = 'pic.jpg'
     pyplot.savefig(filename1)
     pyplot.close()
     return fake1
@@ -346,7 +346,7 @@ def workit(model,image):
     plt.imshow(k)
     plt.axis('off')
     #pyplot.show()
-    filename1 = '/content/gdrive/MyDrive/Outputs/pic1.jpg'
+    filename1 = 'pic1.jpg'
     pyplot.savefig(filename1, bbox_inches='tight')
     pyplot.close()
 
@@ -404,7 +404,7 @@ def pixelate_photo(message):
     res=workit(model,image)
     """plt.imshow(res)
     #pyplot.show()
-    filename1 = '/content/gdrive/MyDrive/Outputs/res.jpg'
+    filename1 = 'res.jpg'
     pyplot.savefig(filename1)
     pyplot.close()"""
 
@@ -416,7 +416,7 @@ def pixelate_photo(message):
     #res = (1/(2*2.25)) * res + 0.5
     #plt.imsave(buf, res, format='jpg')
     #bot.send_photo(message.chat.id, buf.getvalue())
-    res=load_img('/content/gdrive/MyDrive/Outputs/pic1.jpg')
+    res=load_img('pic1.jpg')
     bot.send_photo(message.chat.id, res)
 
 import matplotlib.pyplot as plt
