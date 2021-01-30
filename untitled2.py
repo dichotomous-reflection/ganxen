@@ -362,9 +362,12 @@ with open(path_config, 'w') as f:
     f.write(f'[telegram]\ntoken = {telegram_token}\nchat_id = {chat_id}')
 telegram_send.send(messages=["Telegram bot synced!"])
 
-$ pip3 install requests > /dev/null
-$ pip3 install pyTelegramBotAPI > /dev/null
-
+#$ pip3 install requests > /dev/null
+#$ pip3 install pyTelegramBotAPI > /dev/null
+$ git clone https://github.com/eternnoir/pyTelegramBotAPI.git
+$ cd pyTelegramBotAPI
+$ python setup.py install
+$ python -m pip install requests
 
 
 import logging
