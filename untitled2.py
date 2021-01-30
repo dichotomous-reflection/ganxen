@@ -352,7 +352,7 @@ def workit(model,image):
 
 
 
-$ pip3 install telegram-send
+pip3 install telegram-send
 #$ pip install pyTelegramBotAPI
 import telegram_send
 telegram_token = '1583691133:AAHrob5dmPKtm5LDGibCB5xBAgCzsxeL3eg'
@@ -362,8 +362,8 @@ with open(path_config, 'w') as f:
     f.write(f'[telegram]\ntoken = {telegram_token}\nchat_id = {chat_id}')
 telegram_send.send(messages=["Telegram bot synced!"])
 
-$ pip3 install requests > /dev/null
-$ pip3 install pyTelegramBotAPI > /dev/null
+pip3 install requests > /dev/null
+pip3 install pyTelegramBotAPI > /dev/null
 
 
 
