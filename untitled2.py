@@ -299,7 +299,7 @@ DEVICE = torch.device("cuda")
 device=torch.device("cuda")
 
 import torch.nn.functional as F
-
+import cv2
 def show(pic):
     
     pyplot.subplot(2, 1 , 2)
