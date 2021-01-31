@@ -1,0 +1,39 @@
+def shownsave(real,fake,name, step):
+    n_samples=real.size(0)
+    for i in range(n_samples):
+        pyplot.subplot(2, n_samples, 1 + i)
+        pyplot.axis('off')
+        ch, h, w= real[i].size()
+        real1=real[i].permute(1,2,0)#(h, w, ch)
+        real1=real1.cpu().detach().numpy()
+        mean = np.array([0.5, 0.5, 0.5])
+        std = np.array([0.5, 0.5, 0.5])
+        real1=std * real1 + mean
+        real1 = np.clip(real1, 0, 1)
+        pyplot.imshow(real1)
+        
+    for i in range(n_samples):
+        pyplot.subplot(2, n_samples, 2 + i)
+        pyplot.axis('off')
+        ch, h, w= fake[i].size()
+        #fake1=fake[i].reshape(h, w, ch)
+        fake1=fake[i].permute(1, 2, 0)
+        fake1=fake1.cpu()
+        fake1=fake1.detach().numpy()
+        fake1 = np.clip(fake1, 0, 1)
+        plt.imshow(fake1)
+        # save plot to file
+        pyplot.show()
+        #plt.savefig()
+        
+        filename1 = '%s_generated_plot_%06d.png' % (name, (step+1))
+        pyplot.savefig(filename1)
+        
+def save_models(step, g_model_AtoB, g_model_BtoA):
+	# save the first generator model
+	filename1 = 'g_model_AtoB_%06d.h5' % (step+1)
+	torch.save(g_model_AtoB,filename1)
+	# save the second generator model
+	filename2 = 'g_model_BtoA_%06d.h5' % (step+1)
+	torch.save(g_model_BtoA,filename2)
+	print('>Saved: %s and %s' % (filename1, filename2))
