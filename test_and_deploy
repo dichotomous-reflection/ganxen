@@ -46,6 +46,9 @@ from loading data import load_images2
 from utils import ReplayBuffer
 from utils import DecayLR
 from utils import weights_init
+from bot-launch import show
+from bot-launch import predict_one_sample
+from bot-launch workit
 
 import torch
 import torch.nn as nn
@@ -69,55 +72,8 @@ device=torch.device("cuda")
 
 import torch.nn.functional as F
 import cv2
-def show(pic):
-    
-    pyplot.subplot(2, 1 , 2)
-    pyplot.axis('off')
-    pic=torch.squeeze(pic)
-    ch, h, w= pic.size()
-    #fake1=fake[i].reshape(h, w, ch)
-    fake1=pic.permute(1, 2, 0)
-    fake1=fake1.cpu()
-    fake1=fake1.detach().numpy()
-    mean = np.array([0.5, 0.5, 0.5])
-    std = np.array([0.5, 0.5, 0.5])
-    #mean = np.array([0.4914, 0.4822, 0.4465])
-    #std = np.array([0.2023, 0.1994, 0.2010])
-    fake1 = std * fake1 + mean
-    fake1 = np.clip(fake1, 0, 1)
-    #fake1=Image.fromarray(fake1)
-    #resized_image = t(fake1)
-    #fake1=img_to_array(fake1)
-    fake1 = cv2.resize(fake1, dsize=(512, 512), interpolation=cv2.INTER_CUBIC)
-    plt.imshow(fake1)
-    #pyplot.show()
-    filename1 = 'pic.jpg'
-    pyplot.savefig(filename1)
-    pyplot.close()
-    return fake1
+import telegram_send
 
-def predict_one_sample(model, inputs, device=DEVICE):
-    """Предсказание, для одной картинки"""
-    with torch.no_grad():
-        inputs = inputs.to(device)
-        model.eval()
-        res = model(inputs).cpu()
-        #probs = torch.nn.functional.softmax(logit, dim=-1).numpy()
-        res= show(res)
-    return res
-
-from matplotlib import pyplot
-from torchvision.utils import save_image
-
-
-def workit(model,image):
-    k=predict_one_sample(model,image)
-    plt.imshow(k)
-    plt.axis('off')
-    #pyplot.show()
-    filename1 = 'pic1.jpg'
-    pyplot.savefig(filename1, bbox_inches='tight')
-    pyplot.close()
 
 import telegram_send
 telegram_token = '1583691133:AAHrob5dmPKtm5LDGibCB5xBAgCzsxeL3eg'
