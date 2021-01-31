@@ -76,8 +76,8 @@ import telegram_send
 
 
 import telegram_send
-telegram_token = '1583691133:AAHrob5dmPKtm5LDGibCB5xBAgCzsxeL3eg'
-chat_id = '642852704'
+telegram_token = 'YOURTELEGRAMTOKEN'
+chat_id = 'YOURCHATID'
 path_config = telegram_send.get_config_path()
 with open(path_config, 'w') as f:
     f.write(f'[telegram]\ntoken = {telegram_token}\nchat_id = {chat_id}')
