@@ -1,0 +1,221 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torchvision import models
+import torch.optim as optim
+from time import time
+from os import listdir
+from numpy import asarray
+from numpy import vstack
+from keras.preprocessing.image import img_to_array
+from keras.preprocessing.image import load_img
+from numpy import savez_compressed
+import torch
+from torchvision import transforms
+from PIL import Image
+from numpy import load
+from matplotlib import pyplot
+import argparse
+import itertools
+import os
+import random
+
+import torch.backends.cudnn as cudnn
+import torch.utils.data
+import torchvision.transforms as transforms
+import torchvision.utils as vutils
+from PIL import Image
+from tqdm import tqdm
+from torchvision.utils import save_image
+from IPython.display import clear_output
+import matplotlib.pyplot as plt
+import numpy as np
+
+from models import SegNet
+from models import ConvNet
+from loading data import load_images
+from utils import ReplayBuffer
+from utils import DecayLR
+from utils import weights_init
+
+
+        
+disc1 = ConvolNet().to(device)
+disc2 = ConvolNet().to(device)
+gen1 = SegNet().to(device)
+gen2 = SegNet().to(device)
+
+gen1.apply(weights_init)
+gen2.apply(weights_init)
+
+
+        
+ 
+ 
+path ='../input/vangogh'   
+dataA = load_images(path + '/photo_jpg/')
+print('Loaded dataA: ', dataA.shape)
+# load dataset B
+dataB1 = load_images(path + '/archive (5)/Auvers sur Oise/')
+dataB2 = load_images(path + '/archive (5)/Saint Remy/')
+dataB = vstack((dataB1, dataB2))
+#dataB = load_images(path + '/monet_jpg/')
+print('Loaded dataB: ', dataB.shape)
+
+# save as compressed numpy array
+
+filename = 'vang_256.npz'
+
+
+savez_compressed(filename, dataA, dataB)
+print('Saved dataset: ', filename)
+
+from numpy import load
+from matplotlib import pyplot
+# load the dataset
+
+data = load('vang_256.npz')
+dataA, dataB = data['arr_0'], data['arr_1']
+print('Loaded: ', dataA.shape, dataB.shape)
+
+dataA=torch.from_numpy(dataA)
+dataB=torch.from_numpy(dataB)
+
+from torch.utils.data import DataLoader
+batch_size = 1
+data_A = DataLoader(dataA, batch_size=batch_size, shuffle=True)
+data_B = DataLoader(dataB, batch_size=batch_size, shuffle=True)
+
+def train(data_A, data_B):
+
+    cycle_loss = torch.nn.L1Loss().to(device)
+    identity_loss = torch.nn.L1Loss().to(device)
+    adversarial_loss = torch.nn.MSELoss().to(device)
+    optimizer_gen = torch.optim.Adam(itertools.chain(gen1.parameters(), gen2.parameters()),
+                                  lr=3e-5, betas=(0.5, 0.999))
+    optimizer_disc2 = torch.optim.Adam(disc2.parameters(), lr=3e-5, betas=(0.5, 0.999))
+    optimizer_disc1 = torch.optim.Adam(disc1.parameters(), lr=3e-5, betas=(0.5, 0.999))
+    g_losses = []
+    d_losses = []
+
+    identity_losses = []
+    gan_losses = []
+    cycle_losses = []
+
+    fake_A_buffer = ReplayBuffer()
+    fake_B_buffer = ReplayBuffer()
+    epochs_num=200
+    dataset=list(zip(data_A,data_B))
+    num=0
+    for epoch in range(0, epochs_num):
+        #seets = tqdm(enumerate(dataset), total=len(dataset))
+        """for i, data in progress_bar:"""
+            # get batch size data
+        for datA, datB in dataset:
+            real_image_A = datA.to(device)
+            real_image_B = datB.to(device)
+            
+            batch_size = 1
+            num+=1
+            # real data label is 1, fake data label is 0.
+            #batchsize = real_image_A.size(0)
+            real_label = torch.full((batch_size, 1), 1, device=device, dtype=torch.float32)
+            fake_label = torch.full((batch_size, 1), 0, device=device, dtype=torch.float32)
+            #shownsave(real_image_A, real_image_A, "B2A", epoch)
+            ##############################################
+            # (1) Update G network: Generators A2B and B2A
+            ##############################################
+
+            # Set G_A and G_B's gradients to zero
+            optimizer_gen.zero_grad()
+
+            # Identity loss
+            # G_B2A(A) should equal A if real A is fed
+            identity_image_A = gen2(real_image_A)
+            loss_identity_A = identity_loss(identity_image_A, real_image_A) * 5.0
+            # G_A2B(B) should equal B if real B is fed
+            identity_image_B = gen1(real_image_B)
+            loss_identity_B = identity_loss(identity_image_B, real_image_B) * 5.0
+            #imshow(identity_image_A)
+            #shownsave(real_image_A, identity_image_A, "a2A", epoch)
+            #shownsave(real_image_B, identity_image_B, "b2B", epoch)
+
+            # GAN loss
+            # GAN loss D_A(G_A(A))
+            fake_image_A = gen2(real_image_B)
+            fake_output_A = disc2(fake_image_A)
+            loss_GAN_B2A = adversarial_loss(fake_output_A, real_label)
+            # GAN loss D_B(G_B(B))
+            fake_image_B = gen1(real_image_A)
+            fake_output_B = disc1(fake_image_B)
+            loss_GAN_A2B = adversarial_loss(fake_output_B, real_label)
+            
+            recovered_image_A = gen2(fake_image_B)
+            loss_cycle_ABA = cycle_loss(recovered_image_A, real_image_A) * 10.0
+
+            recovered_image_B = gen1(fake_image_A)
+            loss_cycle_BAB = cycle_loss(recovered_image_B, real_image_B) * 10.0
+
+            # Combined loss and calculate gradients
+            errG = loss_identity_A + loss_identity_B + loss_GAN_A2B + loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB
+
+            # Calculate gradients for G_A and G_B
+            errG.backward()
+            # Update G_A and G_B's weights
+            optimizer_gen.step()
+            #########################################
+            
+            optimizer_disc2.zero_grad()
+
+            # Real A image loss
+            real_output_A = disc2(real_image_A)
+            errD_real_A = adversarial_loss(real_output_A, real_label)
+
+            # Fake A image loss
+            fake_image_A = fake_A_buffer.push_and_pop(fake_image_A)
+            fake_output_A = disc2(fake_image_A.detach())
+            errD_fake_A = adversarial_loss(fake_output_A, fake_label)
+
+            # Combined loss and calculate gradients
+            errD_A = (errD_real_A + errD_fake_A) / 2
+
+            # Calculate gradients for D_A
+            errD_A.backward()
+            optimizer_disc2.step()
+
+            ##############################################
+            
+            optimizer_disc1.zero_grad()
+
+            # Real B image loss
+            real_output_B = disc1(real_image_B)
+            errD_real_B = adversarial_loss(real_output_B, real_label)
+
+            # Fake B image loss
+            fake_image_B = fake_B_buffer.push_and_pop(fake_image_B)
+            fake_output_B = disc1(fake_image_B.detach())
+            errD_fake_B = adversarial_loss(fake_output_B, fake_label)
+
+            # Combined loss and calculate gradients
+            errD_B = (errD_real_B + errD_fake_B) / 2
+
+            # Calculate gradients for D_B
+            errD_B.backward()
+            # Update D_B weights
+            optimizer_disc1.step()
+            ############################################
+            
+            clear_output(wait=True)
+            if num%2 == 0:
+                fake_image_A = 0.5 * (gen2(real_image_B).data + 1.0)
+                fake_image_B = 0.5 * (gen1(real_image_A).data + 1.0)
+
+                shownsave(real_image_A, fake_image_A, "B2A", epoch)
+                shownsave(real_image_B, fake_image_B, "A2B", epoch)
+                
+        if epoch%17==0:
+            save_models(epoch, gen1, gen2)
+
+            print("Epoch ,", epoch, " loss_gan", loss_cycle_ABA + loss_cycle_BAB)
+            
+train(data_A, data_B)
