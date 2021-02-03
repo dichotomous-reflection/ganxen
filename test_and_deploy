@@ -118,22 +118,15 @@ def pixelate_photo(message):
     image=torch.from_numpy(img)
     image=torch.unsqueeze(image,0)
     # Process
-    #res = pixel_me.pixelate(img)['img_segm_small_w_contour']
+    
     res=workit(model,image)
-    """plt.imshow(res)
-    #pyplot.show()
-    filename1 = 'res.jpg'
-    pyplot.savefig(filename1)
-    pyplot.close()"""
+   
 
     # Resizing
-    #res = rescale(res, (int(512 / res.shape[0]), int(512 / res.shape[0]), 1),
-                           #anti_aliasing=False, order=0)
+   
     # Sending back
     buf = BytesIO()
-    #res = (1/(2*2.25)) * res + 0.5
-    #plt.imsave(buf, res, format='jpg')
-    #bot.send_photo(message.chat.id, buf.getvalue())
+    
     res=load_img('pic1.jpg')
     bot.send_photo(message.chat.id, res)
 
