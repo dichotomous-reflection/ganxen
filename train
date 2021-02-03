@@ -77,44 +77,33 @@ def train(data_A, data_B):
     dataset=list(zip(data_A,data_B))
     num=0
     for epoch in range(0, epochs_num):
-        #seets = tqdm(enumerate(dataset), total=len(dataset))
-        """for i, data in progress_bar:"""
-            # get batch size data
         for datA, datB in dataset:
             real_image_A = datA.to(device)
             real_image_B = datB.to(device)
             
             batch_size = 1
             num+=1
-            # real data label is 1, fake data label is 0.
-            #batchsize = real_image_A.size(0)
             real_label = torch.full((batch_size, 1), 1, device=device, dtype=torch.float32)
             fake_label = torch.full((batch_size, 1), 0, device=device, dtype=torch.float32)
-            #shownsave(real_image_A, real_image_A, "B2A", epoch)
+           
             ##############################################
-            # (1) Update G network: Generators A2B and B2A
+            
             ##############################################
 
-            # Set G_A and G_B's gradients to zero
+            
             optimizer_gen.zero_grad()
 
-            # Identity loss
-            # G_B2A(A) should equal A if real A is fed
             identity_image_A = gen2(real_image_A)
             loss_identity_A = identity_loss(identity_image_A, real_image_A) * 5.0
-            # G_A2B(B) should equal B if real B is fed
+            
             identity_image_B = gen1(real_image_B)
             loss_identity_B = identity_loss(identity_image_B, real_image_B) * 5.0
-            #imshow(identity_image_A)
-            #shownsave(real_image_A, identity_image_A, "a2A", epoch)
-            #shownsave(real_image_B, identity_image_B, "b2B", epoch)
-
-            # GAN loss
-            # GAN loss D_A(G_A(A))
+            
+            
             fake_image_A = gen2(real_image_B)
             fake_output_A = disc2(fake_image_A)
             loss_GAN_B2A = adversarial_loss(fake_output_A, real_label)
-            # GAN loss D_B(G_B(B))
+           
             fake_image_B = gen1(real_image_A)
             fake_output_B = disc1(fake_image_B)
             loss_GAN_A2B = adversarial_loss(fake_output_B, real_label)
@@ -124,13 +113,10 @@ def train(data_A, data_B):
 
             recovered_image_B = gen1(fake_image_A)
             loss_cycle_BAB = cycle_loss(recovered_image_B, real_image_B) * 10.0
-
-            # Combined loss and calculate gradients
             errG = loss_identity_A + loss_identity_B + loss_GAN_A2B + loss_GAN_B2A + loss_cycle_ABA + loss_cycle_BAB
 
-            # Calculate gradients for G_A and G_B
             errG.backward()
-            # Update G_A and G_B's weights
+            
             optimizer_gen.step()
             #########################################
             
@@ -145,10 +131,9 @@ def train(data_A, data_B):
             fake_output_A = disc2(fake_image_A.detach())
             errD_fake_A = adversarial_loss(fake_output_A, fake_label)
 
-            # Combined loss and calculate gradients
             errD_A = (errD_real_A + errD_fake_A) / 2
 
-            # Calculate gradients for D_A
+            
             errD_A.backward()
             optimizer_disc2.step()
 
@@ -165,12 +150,12 @@ def train(data_A, data_B):
             fake_output_B = disc1(fake_image_B.detach())
             errD_fake_B = adversarial_loss(fake_output_B, fake_label)
 
-            # Combined loss and calculate gradients
+           
             errD_B = (errD_real_B + errD_fake_B) / 2
 
-            # Calculate gradients for D_B
+            
             errD_B.backward()
-            # Update D_B weights
+            
             optimizer_disc1.step()
             ############################################
             
