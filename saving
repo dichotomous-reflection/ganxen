@@ -16,15 +16,15 @@ def shownsave(real,fake,name, step):
         pyplot.subplot(2, n_samples, 2 + i)
         pyplot.axis('off')
         ch, h, w= fake[i].size()
-        #fake1=fake[i].reshape(h, w, ch)
+        
         fake1=fake[i].permute(1, 2, 0)
         fake1=fake1.cpu()
         fake1=fake1.detach().numpy()
         fake1 = np.clip(fake1, 0, 1)
         plt.imshow(fake1)
-        # save plot to file
+        
         pyplot.show()
-        #plt.savefig()
+       
         
         filename1 = '%s_generated_plot_%06d.png' % (name, (step+1))
         pyplot.savefig(filename1)
