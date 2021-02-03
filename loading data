@@ -7,7 +7,7 @@ from numpy import savez_compressed
 import torch
 from torchvision import transforms
 from PIL import Image
-
+import gdown
 transform=transforms.Compose([
     
     transforms.RandomHorizontalFlip(),
@@ -37,3 +37,42 @@ def load_image2(img, size=(256,256)):
     pixels = img_to_array(pixels)
     
     return pixels
+    
+
+url = 'https://drive.google.com/file/d/1v6AH8tbY1FyarZKc2g_6EiXk8xHB25Ms/view?usp=sharing'
+output = 'vangogh'
+gdown.download(url, output, quiet=False)
+
+path ='vangogh'   
+dataA = load_images(path + '/photo_jpg/')
+print('Loaded dataA: ', dataA.shape)
+# load dataset B
+dataB1 = load_images(path + '/archive (5)/Auvers sur Oise/')
+dataB2 = load_images(path + '/archive (5)/Saint Remy/')
+dataB = vstack((dataB1, dataB2))
+#dataB = load_images(path + '/monet_jpg/')
+print('Loaded dataB: ', dataB.shape)
+
+# save as compressed numpy array
+
+filename = 'vang_256.npz'
+
+
+savez_compressed(filename, dataA, dataB)
+print('Saved dataset: ', filename)
+
+from numpy import load
+from matplotlib import pyplot
+# load the dataset
+
+data = load('vang_256.npz')
+dataA, dataB = data['arr_0'], data['arr_1']
+print('Loaded: ', dataA.shape, dataB.shape)
+
+dataA=torch.from_numpy(dataA)
+dataB=torch.from_numpy(dataB)
+
+from torch.utils.data import DataLoader
+batch_size = 1
+data_A = DataLoader(dataA, batch_size=batch_size, shuffle=True)
+data_B = DataLoader(dataB, batch_size=batch_size, shuffle=True)
