@@ -74,6 +74,53 @@ import torch.nn.functional as F
 import cv2
 import telegram_send
 
+def show(pic):
+    
+    pyplot.subplot(2, 1 , 2)
+    pyplot.axis('off')
+    pic=torch.squeeze(pic)
+    ch, h, w= pic.size()
+    
+    fake1=pic.permute(1, 2, 0)
+    fake1=fake1.cpu()
+    fake1=fake1.detach().numpy()
+    mean = np.array([0.5, 0.5, 0.5])
+    std = np.array([0.5, 0.5, 0.5])
+   
+    fake1 = std * fake1 + mean
+    fake1 = np.clip(fake1, 0, 1)
+   
+    fake1 = cv2.resize(fake1, dsize=(512, 512), interpolation=cv2.INTER_CUBIC)
+    plt.imshow(fake1)
+   
+    filename1 = 'pic.jpg'
+    pyplot.savefig(filename1)
+    pyplot.close()
+    return fake1
+
+def predict_one_sample(model, inputs, device=DEVICE):
+    """Предсказание, для одной картинки"""
+    with torch.no_grad():
+        inputs = inputs.to(device)
+        model.eval()
+        res = model(inputs).cpu()
+        
+        res= show(res)
+    return res
+
+from matplotlib import pyplot
+from torchvision.utils import save_image
+
+
+def workit(model,image):
+    k=predict_one_sample(model,image)
+    plt.imshow(k)
+    plt.axis('off')
+    
+    filename1 = 'pic1.jpg'
+    pyplot.savefig(filename1, bbox_inches='tight')
+    pyplot.close()
+
 
 import telegram_send
 telegram_token = 'YOURTELEGRAMTOKEN'
