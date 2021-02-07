@@ -1,3 +1,6 @@
+###########
+#this part I had to check out in the official cyclegan repository, https://github.com/Lornatang/CycleGAN-PyTorch
+#########
 class ReplayBuffer():
     def __init__(self, max_size=50):
         assert (max_size > 0), 'Empty buffer or trying to create a black hole. Be careful.'
