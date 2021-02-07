@@ -60,10 +60,21 @@ def train(data_A, data_B):
     cycle_loss = torch.nn.L1Loss().to(device)
     identity_loss = torch.nn.L1Loss().to(device)
     adversarial_loss = torch.nn.MSELoss().to(device)
+    
+    
+    
     optimizer_gen = torch.optim.Adam(itertools.chain(gen1.parameters(), gen2.parameters()),
                                   lr=3e-5, betas=(0.5, 0.999))
     optimizer_disc2 = torch.optim.Adam(disc2.parameters(), lr=3e-5, betas=(0.5, 0.999))
     optimizer_disc1 = torch.optim.Adam(disc1.parameters(), lr=3e-5, betas=(0.5, 0.999))
+    
+    epochs=200
+    decay_epochs=100
+    lr_lambda = DecayLR(epochs, 0, decay_epochs).step
+    lr_scheduler_gen = torch.optim.lr_scheduler.LambdaLR(optimizer_gen, lr_lambda=lr_lambda)
+    lr_scheduler_disc2 = torch.optim.lr_scheduler.LambdaLR(optimizer_disc2, lr_lambda=lr_lambda)
+    lr_scheduler_disc1 = torch.optim.lr_scheduler.LambdaLR(optimizer_disc1, lr_lambda=lr_lambda)
+    
     g_losses = []
     d_losses = []
 
