@@ -36,6 +36,7 @@ from models import ConvNet
 from loading data import load_images
 from utils import ReplayBuffer
 from utils import DecayLR
+from utils import LambdaLR
 from utils import weights_init
 from saving import save_models
 from saving import shownsave
