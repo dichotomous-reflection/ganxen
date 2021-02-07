@@ -6,7 +6,7 @@ This is a CycleGan net combined with a telegram bot. The files can be downloaded
 
 And a screenshot of the bot.
 
-![Image 2](изображение_2021-02-07_112347.png)
+![Image 2](изображение_2021-02-07_113929.png)
 
 
 For fun, I have also tried assembling a disney character dataset to make cartoonified portraits. Sadly, it didn't work. The test results were a bit disappointing, though the train ones were almost decent. I guess it will work with a larger dataset (I had around 250 images of one type and 500 of the other), so you might try it if you're feeling bored enough.
