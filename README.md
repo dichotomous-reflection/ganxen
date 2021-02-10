@@ -14,3 +14,11 @@ Itook the overll model structure from the original article on cycle gans, but I 
 For fun, I have also tried assembling a disney character dataset to make cartoonified portraits. Sadly, it didn't work. The test results were a bit disappointing, though the train ones were almost decent. I guess it will work with a larger dataset (I had around 250 images of one type and 500 of the other), so you might try it if you're feeling bored enough.
 
 ![Image 2](изображение_2021-02-07_114918.png)
+
+
+UPD: Improved my disney-style net, got some interesting results.
+
+![Image 3](изображение_2021-02-10_102430.png)
+
+
+![Image 4](изображение_2021-02-10_102517.png)
